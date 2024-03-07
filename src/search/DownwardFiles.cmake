@@ -132,61 +132,61 @@ fast_downward_plugin(
     CORE_PLUGIN
 )
 
-fast_downward_plugin(
-    NAME PARTITION_SYSTEM
-    HELP "Base class for partition system openlists"
-    SOURCES
-        open_lists/partitions/partition_open_list
-)
-
-fast_downward_plugin(
-    NAME PARTITION_SELECTION
-    HELP "Base class for partition selection policies"
-    SOURCES
-        open_lists/partitions/inter/partition_policy
-)
-
-fast_downward_plugin(
-    NAME PARTITION_SELECTION_SUBCATEGORY
-    HELP "Subcategory plugin for partition selection policies"
-    SOURCES
-        open_lists/partitions/inter/subcategory
-)
-
-fast_downward_plugin(
-    NAME PARTITION_SELECTION_UNIFORM
-    HELP "uniform partition selection policy"
-    SOURCES
-        open_lists/partitions/inter/uniform
-)
-
 # fast_downward_plugin(
-#     NAME PARTITION_SELECTION_EPSILON_GREEDY
-#     HELP "epsilon greedy partition selection policy"
+#     NAME PARTITION_SYSTEM
+#     HELP "Base class for partition system openlists"
 #     SOURCES
-#         open_lists/partitions/inter/epsilon_greedy_minh
+#         open_lists/partitions/partition_open_list
 # )
 
 # fast_downward_plugin(
-#     NAME PARTITION_SELECTION_EPSILON_GREEDY_ROOT
-#     HELP "epsilon greedy root partition selection policy"
+#     NAME PARTITION_SELECTION
+#     HELP "Base class for partition selection policies"
 #     SOURCES
-#         open_lists/partitions/inter/epsilon_greedy_root
+#         open_lists/partitions/inter/partition_policy
 # )
 
-fast_downward_plugin(
-    NAME PARTITION_SELECTION_BIASED_LEVEL
-    HELP "biased level partition selection policy"
-    SOURCES
-        open_lists/partitions/inter/biased_level
-)
+# fast_downward_plugin(
+#     NAME PARTITION_SELECTION_SUBCATEGORY
+#     HELP "Subcategory plugin for partition selection policies"
+#     SOURCES
+#         open_lists/partitions/inter/subcategory
+# )
 
-fast_downward_plugin(
-    NAME PARTITION_SELECTION_BIASED_DEPTH
-    HELP "biased depth partition selection policy"
-    SOURCES
-        open_lists/partitions/inter/biased_depth
-)
+# fast_downward_plugin(
+#     NAME PARTITION_SELECTION_UNIFORM
+#     HELP "uniform partition selection policy"
+#     SOURCES
+#         open_lists/partitions/inter/uniform
+# )
+
+# # fast_downward_plugin(
+# #     NAME PARTITION_SELECTION_EPSILON_GREEDY
+# #     HELP "epsilon greedy partition selection policy"
+# #     SOURCES
+# #         open_lists/partitions/inter/epsilon_greedy_minh
+# # )
+
+# # fast_downward_plugin(
+# #     NAME PARTITION_SELECTION_EPSILON_GREEDY_ROOT
+# #     HELP "epsilon greedy root partition selection policy"
+# #     SOURCES
+# #         open_lists/partitions/inter/epsilon_greedy_root
+# # )
+
+# fast_downward_plugin(
+#     NAME PARTITION_SELECTION_BIASED_LEVEL
+#     HELP "biased level partition selection policy"
+#     SOURCES
+#         open_lists/partitions/inter/biased_level
+# )
+
+# fast_downward_plugin(
+#     NAME PARTITION_SELECTION_BIASED_DEPTH
+#     HELP "biased depth partition selection policy"
+#     SOURCES
+#         open_lists/partitions/inter/biased_depth
+# )
 
 # fast_downward_plugin(
 #     NAME PARTITION_SELECTION_BIASED_PROGRESS
@@ -195,96 +195,96 @@ fast_downward_plugin(
 #         open_lists/partitions/inter/biased_progress
 # )
 
-fast_downward_plugin(
-    NAME PARTITION_SELECTION_BIASED_MINH
-    HELP "biased depth partition selection policy"
-    SOURCES
-        open_lists/partitions/inter/biased_minh
-)
-
-fast_downward_plugin(
-    NAME NODE_SELECTION
-    HELP "Base class for node selection policies"
-    SOURCES
-        open_lists/partitions/intra/node_policy
-)
-
-fast_downward_plugin(
-    NAME NODE_SELECTION_SUBCATEGORY
-    HELP "Subcategory plugin for node selection policies"
-    SOURCES
-        open_lists/partitions/intra/subcategory
-)
-
-fast_downward_plugin(
-    NAME NODE_SELECTION_UNIFORM
-    HELP "uniform node selection policy"
-    SOURCES
-        open_lists/partitions/intra/uniform
-)
-
-fast_downward_plugin(
-    NAME NODE_SELECTION_BIASED
-    HELP "biased node selection policy"
-    SOURCES
-        open_lists/partitions/intra/biased_minh
-)
-
-fast_downward_plugin(
-    NAME NODE_SELECTION_EPSILON_GREEDY
-    HELP "epsilon greedy node selection policy"
-    SOURCES
-        open_lists/partitions/intra/epsilon_greedy_minh
-)
-
-fast_downward_plugin(
-    NAME NODE_SELECTION_EPSILON_UNIFORM
-    HELP "epsilon uniform node selection policy"
-    SOURCES
-        open_lists/partitions/intra/epsilon_uniform
-)
-
-fast_downward_plugin(
-    NAME NODE_SELECTION_RANDOM_MIN
-    HELP "random min node selection policy"
-    SOURCES
-        open_lists/partitions/intra/random_min
-)
-
 # fast_downward_plugin(
-#     NAME PARTITION_HI_OPEN_LIST
-#     HELP "Partition open list"
+#     NAME PARTITION_SELECTION_BIASED_MINH
+#     HELP "biased depth partition selection policy"
 #     SOURCES
-#         open_lists/partition_hi_open_list
+#         open_lists/partitions/inter/biased_minh
 # )
 
-fast_downward_plugin(
-    NAME PARTITION_LWMB_BASE_OPEN_LIST
-    HELP "Partition LWMB open list"
-    SOURCES
-        open_lists/partition_lwmb
-)
+# fast_downward_plugin(
+#     NAME NODE_SELECTION
+#     HELP "Base class for node selection policies"
+#     SOURCES
+#         open_lists/partitions/intra/node_policy
+# )
 
-fast_downward_plugin(
-    NAME PARTITION_HIB_BASE_OPEN_LIST
-    HELP "Partition HIB open list"
-    SOURCES
-        open_lists/partition_hib
-)
+# fast_downward_plugin(
+#     NAME NODE_SELECTION_SUBCATEGORY
+#     HELP "Subcategory plugin for node selection policies"
+#     SOURCES
+#         open_lists/partitions/intra/subcategory
+# )
 
-fast_downward_plugin(
-    NAME PARTITION_HIB_OPEN_LIST
-    HELP "Partition open list"
-    SOURCES
-        open_lists/partition_hib_open_list
-)
+# fast_downward_plugin(
+#     NAME NODE_SELECTION_UNIFORM
+#     HELP "uniform node selection policy"
+#     SOURCES
+#         open_lists/partitions/intra/uniform
+# )
 
-fast_downward_plugin(
-    NAME PARTITION_LWMB_OPEN_LIST
-    HELP "Partition open list"
-    SOURCES
-        open_lists/partition_lwmb_open_list
-)
+# fast_downward_plugin(
+#     NAME NODE_SELECTION_BIASED
+#     HELP "biased node selection policy"
+#     SOURCES
+#         open_lists/partitions/intra/biased_minh
+# )
+
+# fast_downward_plugin(
+#     NAME NODE_SELECTION_EPSILON_GREEDY
+#     HELP "epsilon greedy node selection policy"
+#     SOURCES
+#         open_lists/partitions/intra/epsilon_greedy_minh
+# )
+
+# fast_downward_plugin(
+#     NAME NODE_SELECTION_EPSILON_UNIFORM
+#     HELP "epsilon uniform node selection policy"
+#     SOURCES
+#         open_lists/partitions/intra/epsilon_uniform
+# )
+
+# fast_downward_plugin(
+#     NAME NODE_SELECTION_RANDOM_MIN
+#     HELP "random min node selection policy"
+#     SOURCES
+#         open_lists/partitions/intra/random_min
+# )
+
+# # fast_downward_plugin(
+# #     NAME PARTITION_HI_OPEN_LIST
+# #     HELP "Partition open list"
+# #     SOURCES
+# #         open_lists/partition_hi_open_list
+# # )
+
+# fast_downward_plugin(
+#     NAME PARTITION_LWMB_BASE_OPEN_LIST
+#     HELP "Partition LWMB open list"
+#     SOURCES
+#         open_lists/partition_lwmb
+# )
+
+# fast_downward_plugin(
+#     NAME PARTITION_HIB_BASE_OPEN_LIST
+#     HELP "Partition HIB open list"
+#     SOURCES
+#         open_lists/partition_hib
+# )
+
+# fast_downward_plugin(
+#     NAME PARTITION_HIB_OPEN_LIST
+#     HELP "Partition open list"
+#     SOURCES
+#         open_lists/partition_hib_open_list
+# )
+
+# fast_downward_plugin(
+#     NAME PARTITION_LWMB_OPEN_LIST
+#     HELP "Partition open list"
+#     SOURCES
+#         open_lists/partition_lwmb_open_list
+# )
 
 
 # fast_downward_plugin(
@@ -308,12 +308,12 @@ fast_downward_plugin(
 #         open_lists/partition_lwm_open_list
 # )
 
-fast_downward_plugin(
-    NAME PARTITION_BIAS_DEPTH_BIAS_H_OPEN_LIST
-    HELP "Partition biased depth and h open list"
-    SOURCES
-        open_lists/partition_bias_depth_bias_h
-)
+# fast_downward_plugin(
+#     NAME PARTITION_BIAS_DEPTH_BIAS_H_OPEN_LIST
+#     HELP "Partition biased depth and h open list"
+#     SOURCES
+#         open_lists/partition_bias_depth_bias_h
+# )
 
 fast_downward_plugin(
     NAME ALTERNATION_OPEN_LIST
