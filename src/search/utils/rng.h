@@ -33,6 +33,13 @@ public:
         return distribution(rng);
     }
 
+    int random(int l_bound, int r_bound) {
+        assert(l_bound >= 0);
+        assert(l_bound < r_bound);
+        std::uniform_int_distribution<int> distribution(l_bound, r_bound);
+        return distribution(rng);
+    }
+
     template<typename T>
     typename std::vector<T>::const_iterator choose(const std::vector<T> &vec) {
         return vec.begin() + random(vec.size());

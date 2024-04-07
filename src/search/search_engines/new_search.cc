@@ -28,10 +28,9 @@ namespace new_search {
 NewSearch::NewSearch(const plugins::Options &opts)
     : SearchEngine(opts),
       reopen_closed_nodes(opts.get<bool>("reopen_closed")),
-      rng(utils::parse_rng_from_options(opts)),
       evaluator(opts.get<shared_ptr<Evaluator>>("eval")),
-      tau(opts.get<double>("tau")),
-      current_sum(0.0) {}
+      rng(utils::parse_rng_from_options(opts)),
+      search_tree(SparseSearchTree(0.0, opts.get<double>("tau"), rng)) {}
 
 void NewSearch::initialize() {
     log << "Conducting new search"
@@ -51,12 +50,11 @@ void NewSearch::initialize() {
         start_f_value_statistics(eval_context);
         SearchNode node = search_space.get_node(initial_state);
         node.open_initial();
-        hi_types[0].push_back({initial_state.get_id()});
-        expanding_state = initial_state.get_id();
+        search_tree.add_initial_state(initial_state.get_id(), init_eval);
 
         vector<OperatorID> applicable_ops;
         successor_generator.generate_applicable_ops(initial_state, applicable_ops);
-        open_states[initial_state] = OpenState(0, 0, false, applicable_ops);
+        // known_states[initial_state] = KnownState(0, 0, TODO, applicable_ops);
 
     }
 
@@ -68,104 +66,139 @@ void NewSearch::initialize() {
 void NewSearch::print_statistics() const {
     statistics.print_detailed_statistics();
     search_space.print_statistics();
-    // pruning_method->print_statistics();
 }
 
-OperatorID NewSearch::get_next_rollout_start(State s) {
-
-    int next_op_id = open_states[s].op_index++;
-    if (next_op_id == open_states[s].operators.size() - 1) { // every successor has been rolled out from
-        SearchNode node = search_space.get_node(s);
-        node.close();
-    }
-    return open_states[s].operators[next_op_id];
+// StateID NewSearch::select_next_state(StateLoc& loc) {
+//     int selected_depth = type_buckets.begin()->first;
+//     double r = rng->random();
     
+//     double total_sum = current_sum;
+//     double p_sum = 0.0;
+//     for (auto it : type_buckets) {
+//         double p = 1.0 / total_sum;
+//         p *= std::exp(-1.0*static_cast<double>(it.first) / tau); //remove -1.0 *
+//         p *= static_cast<double>(it.second.size());
+//         p_sum += p;
+//         if (r <= p_sum) {
+//             selected_depth = it.first;
+//             break;
+//         }
+//     }
+
+//     vector<vector<StateID>> &types = type_buckets.at(selected_depth);
+//     int chosen_type_i = rng->random(types.size());
+//     vector<StateID> &states = types[chosen_type_i];
+//     int chosen_i = rng->random(states.size());
+//     StateID id = states[chosen_i];
+
+//     loc.depth = selected_depth;
+//     loc.breadth = chosen_type_i;
+//     loc.i = chosen_i;
+//     return id;
+// }
+
+// void NewSearch::remove_from_type_buckets(StateLoc loc) {
+//     vector<vector<StateID>> &types = type_buckets.at(loc.depth);
+//     vector<StateID> &states = types[loc.breadth];
+
+//     utils::swap_and_pop_from_vector(states, loc.i);
+//     if (states.empty()){
+//         utils::swap_and_pop_from_vector(types, loc.breadth);
+//         if (types.empty()) {
+//             type_buckets.erase(loc.depth);
+//             current_sum -= std::exp(-1.0*static_cast<double>(loc.depth) / tau);
+//         }
+//     }
+// }
+
+// void NewSearch::insert_into_type_buckets(StateID s_id, StateLoc& loc) {
+//     vector<vector<StateID>>& types = type_buckets[loc.depth];
+//     if (loc.breadth == -1) {
+//         types.push_back({s_id});
+//         current_sum += std::exp(static_cast<double>(loc.depth) / tau);
+
+        
+//         loc.breadth = types.size()-1;
+//         loc.i = types[loc.breadth].size()-1;
+//     } else {
+//         types[loc.breadth].push_back(s_id);
+//         loc.i = types[loc.breadth].size()-1;
+//     }
+// }
+
+// OperatorID NewSearch::get_next_rollout_start(const State s) {
+
+//     int next_op_id = known_states[s].op_index++;
+//     if (next_op_id == known_states[s].operators.size() - 1) { // every successor has been rolled out from
+//         SearchNode node = search_space.get_node(s);
+//         node.close();
+//         known_states[s].status |= RAND_EXPAND;
+//     }
+//     return known_states[s].operators[next_op_id];
+    
+// }
+
+OperatorID NewSearch::random_next_action(const State s) {
+    // return *rng->choose(known_states[s].operators);
 }
 
-OperatorID NewSearch::random_next_action(State s) {
-    return *rng->choose(open_states[s].operators);
-}
+bool NewSearch::add_state(const StateID s_id, const OperatorID op_id, const StateID parent_s_id) {
+    // State s = state_registry.lookup_state(s_id);
+    // State parent_s = state_registry.lookup_state(parent_s_id);
 
-bool NewSearch::open_rollout_node(const State s, const OperatorID op_id, const State parent_s) {
-    SearchNode to_open = search_space.get_node(s);
-    SearchNode parent = search_space.get_node(parent_s);
-    OperatorProxy op = task_proxy.get_operators()[op_id];
-    vector<OperatorID> applicable_ops;
-    successor_generator.generate_applicable_ops(s, applicable_ops);
-    int num_ops = applicable_ops.size();
-    if (num_ops == 0) {
-        return false;
-    }
-    int cost = get_adjusted_cost(op);
+    // SearchNode to_open = search_space.get_node(s);
+    // vector<OperatorID> applicable_ops;
+    // successor_generator.generate_applicable_ops(s, applicable_ops);
+    // if (applicable_ops.size() == 0) { // dont add deadends
+    //     return false;
+    // }
 
-    if (to_open.is_new()) {
+    // SearchNode parent = search_space.get_node(parent_s);
+    // OperatorProxy op = task_proxy.get_operators()[op_id];
+    // int cost = get_adjusted_cost(op);
 
-        rng->shuffle(applicable_ops); // randomize successor order
-        open_states[s] = OpenState(open_states[parent_s].depth + 1, 0, false, applicable_ops);
-        to_open.open(parent, op, cost);
+    // if (to_open.is_new()) {
 
-        if (hi_vector_index == -1) // jank
-            hi_types[active_hi_depth].back().push_back(s.get_id());
-        else
-            hi_types[active_hi_depth][hi_vector_index].push_back(s.get_id());
+    //     rng->shuffle(applicable_ops); // randomize successor order
 
-        return true;
-    } else if (to_open.get_g() > parent.get_g() + cost) { // open or closed, update g-cost and depth
-        to_open.update_parent(parent, op, cost);
-        open_states[s].depth = open_states[parent_s].depth + 1;
-    }
-    return true;
+    //     if (loc.breadth == -1) {
+    //         known_states[s] = KnownState(0, 0, TODO, applicable_ops); // new type gets depth of 0 in type
+    //     } else {
+    //         known_states[s] = KnownState(known_states[parent_s].depth + 1, 0, TODO, applicable_ops);
+    //     }
+
+    //     to_open.open(parent, op, cost);
+    //     insert_into_type_buckets(s_id, loc);
+    //     return true;
+
+    // } else if (to_open.get_g() > parent.get_g() + cost) { // open or closed, update g-cost and depth
+    //     to_open.update_parent(parent, op, cost);
+    // }
+    // return true;
 }
 
 // do a greedy rollout until you hit a goal or the bottom of a crater.
-// upon crater detection, will call random_rollout and will recurse if random_rollout finds HI
-// return true if goal, false otherwise
-NewSearch::RolloutResult NewSearch::greedy_rollout(const State rollout_state, const StateID parent_s_id) {
-    active_hi_depth+=1;
-    hi_vector_index = -1;
+std::pair<NewSearch::RolloutResult, StateID> NewSearch::greedy_rollout(const State rollout_state) {
 
     SearchNode rollout_node = search_space.get_node(rollout_state);
     int rollout_g = rollout_node.get_g();
     State curr_state = rollout_state;
     State next_state = curr_state;
 
-    // StateID parent_s_id = active_rollout_path_segments.back().back();
-    //  
-    if (parent_s_id != StateID::no_state) {
-        State parent_s = state_registry.lookup_state(parent_s_id);
-        if ( !open_rollout_node(rollout_state, rollout_node.get_info().creating_operator, parent_s)) { // greedy shouldn't open the rollout state nor add it to active_rllout_path
-            return UHR;
-        }
-    }
-
-    if (open_states[rollout_state].greedily_expanded == true){ // don't expand an already greedily expanded path...
-        return UHR; // we're running toward a known crater
-    }
-
-    if (task_properties::is_goal_state(task_proxy, rollout_state)){
-        Plan plan;
-        search_space.trace_path(rollout_state, plan);
-        set_plan(plan);
-        return GOAL;
-    }
-
-    int path_len = 0;
-
     EvaluationContext eval_context(curr_state, &statistics, false);
     int curr_h = eval_context.get_evaluator_value_or_infinity(evaluator.get());
     while (true) { // keep expanding while heuristic improvements come in
-
-        vector<OperatorID> applicable_ops;
-        successor_generator.generate_applicable_ops(curr_state, applicable_ops); 
-
-        if (applicable_ops.size() == 0) {
-            return UHR; // failure end of recursion: deadend
-        }
 
         int min_child_h = std::numeric_limits<int>::max();
         OperatorID chosen_op_id = OperatorID::no_operator;
         int chosen_op_index = 0;
         int index = 0;
+
+        vector<OperatorID> applicable_ops;
+        successor_generator.generate_applicable_ops(curr_state, applicable_ops);
+        if (applicable_ops.size() == 0) {
+            return make_pair(DEADEND, curr_state.get_id());
+        }
 
         for (OperatorID op_id : applicable_ops) {
             OperatorProxy op = task_proxy.get_operators()[op_id];
@@ -174,20 +207,10 @@ NewSearch::RolloutResult NewSearch::greedy_rollout(const State rollout_state, co
 
             State succ_state = state_registry.get_successor_state(curr_state, op);
             statistics.inc_generated();
-
-            if (task_properties::is_goal_state(task_proxy, succ_state)) {
-                open_rollout_node(succ_state, op_id, curr_state);
-                Plan plan;
-                search_space.trace_path(succ_state, plan);
-                set_plan(plan);
-                return GOAL; // end of recursion: success
-            }
-
             EvaluationContext succ_eval_context(
                     succ_state, &statistics, false);
 
             int eval = succ_eval_context.get_evaluator_value_or_infinity(evaluator.get());
-
 
             if (eval < min_child_h) {
                 chosen_op_index = index;
@@ -198,151 +221,92 @@ NewSearch::RolloutResult NewSearch::greedy_rollout(const State rollout_state, co
             index+=1;
 
         }
-        open_states[curr_state].greedily_expanded = true;
+
+        if (task_properties::is_goal_state(task_proxy, next_state)) {
+            Plan plan;
+            search_space.trace_path(next_state, plan);
+            set_plan(plan);
+            return make_pair(GOAL, next_state.get_id()); // end of recursion: success
+        }
 
         if (min_child_h >= curr_h) {
             break;
         }
 
-        open_rollout_node(next_state, chosen_op_id, curr_state); // ignored return value. maybe void?
-        if (open_states[next_state].greedily_expanded == true){ // don't expand an already greedily expanded path...
-            return UHR; // we're running toward a known crater
-        }
-
         curr_h = min_child_h;
         curr_state = next_state;
-        path_len+=1;
     }
     
-    return random_rollout(curr_state, curr_h, path_len);
+    return make_pair(HI, curr_state.get_id()); // bottom of crater
      
 }
 
-// do a random rollout starting at rollout_node. assume rollout state already open
-//return: true if HI, false otherwise
-NewSearch::RolloutResult NewSearch::random_rollout(const State rollout_state, int start_h, int rollout_limit) {
 
-    // do rollout
-    OperatorID op_id = get_next_rollout_start(rollout_state);
-    OperatorProxy op = task_proxy.get_operators()[op_id];
-    State curr_state = state_registry.get_successor_state(rollout_state, op);
-    State parent_s = rollout_state;
-    while (rollout_limit >= 0) {
+std::pair<NewSearch::RolloutResult, StateID> NewSearch::random_rollout() {
 
-        // open node
-        if ( !open_rollout_node(curr_state, op_id, parent_s)) {
-            return UHR;
-        }
+    RolloutCTX next_rollout = search_tree.select_next_state();
+    State parent_s = state_registry.lookup_state(next_rollout.state_id);
+    State curr_state = parent_s;
+
+    int rollout_limit = next_rollout.r_length;
+    do {
+        OperatorID op_id = random_next_action(curr_state);
+        OperatorProxy op = task_proxy.get_operators()[op_id];
+        curr_state = state_registry.get_successor_state(parent_s, op);
 
         if (task_properties::is_goal_state(task_proxy, curr_state)) {
-            Plan plan;
-            search_space.trace_path(curr_state, plan);
-            set_plan(plan);
-            return GOAL; // end of recursion: success
+            return make_pair(GOAL, curr_state.get_id()); // end of recursion: success
         }
 
-        op_id = random_next_action(curr_state);
-        op = task_proxy.get_operators()[op_id];
-        parent_s = curr_state;
-        curr_state = state_registry.get_successor_state(curr_state, op);
-
         rollout_limit-=1;
-    }
-
-    if ( !open_rollout_node(curr_state, op_id, parent_s)) {
-        return UHR;
-    }
+    } while(rollout_limit > 0);
 
     SearchNode curr_node = search_space.get_node(curr_state);
     EvaluationContext succ_eval_context(
-            curr_state, curr_node.get_g(), false, &statistics);
+            curr_state, &statistics, false);
     int eval = succ_eval_context.get_evaluator_value_or_infinity(evaluator.get());
     
-    if (eval < start_h) { // if the rollout found an improvement
-        return greedy_rollout(curr_state, parent_s.get_id());
+    if (eval < next_rollout.h) { // if the rollout found an improvement
+        return greedy_rollout(curr_state);
+
     } else {
-        return UHR;  
+        return make_pair(UHR, curr_state.get_id());
     }
+
 }
 
 SearchStatus NewSearch::step() {
     
-    RolloutResult rollout_result;
-    int selected_depth = 0;
-    int chosen_type_i;
+    pair<RolloutResult, StateID> result_pair = random_rollout();
+    RolloutResult result = result_pair.first;
+    StateID state_id = result_pair.second;
+    if (result == GOAL) {
 
-    if (first_expansion == true) {
-        rollout_result = greedy_rollout(state_registry.lookup_state(expanding_state), StateID::no_state); // initial state is progress
-        first_expansion = false;
-    } else {
-
-        tl::optional<SearchNode> node;
-        while (true) {
-            if (hi_types.empty()) {
-                log << "Completely explored state space -- no solution!" << endl;
-                return FAILED;
-            }
-
-            selected_depth = hi_types.begin()->first;
-            if (hi_types.size() > 1) {
-                double r = rng->random();
-                
-                double total_sum = current_sum;
-                double p_sum = 0.0;
-                for (auto it : hi_types) {
-                    double p = 1.0 / total_sum;
-                    p *= std::exp(-1.0*static_cast<double>(it.first) / tau); //remove -1.0 *
-                    p *= static_cast<double>(it.second.size());
-                    p_sum += p;
-                    if (r <= p_sum) {
-                        selected_depth = it.first;
-                        break;
-                    }
-                }
-            }
-
-            vector<vector<StateID>> &types = hi_types.at(selected_depth);
-            chosen_type_i = rng->random(types.size());
-            vector<StateID> &states = types[chosen_type_i];
-            int chosen_i = rng->random(states.size());
-            StateID id = states[chosen_i];
-            State s = state_registry.lookup_state(id);
-            node.emplace(search_space.get_node(s));
-
-
-            if (node->is_closed()) { // lazy type system node removal
-                utils::swap_and_pop_from_vector(states, chosen_i);
-                if (states.empty()){
-                    utils::swap_and_pop_from_vector(types, chosen_type_i);
-                    if (types.empty()) {
-                        hi_types.erase(selected_depth);
-                        current_sum -= std::exp(-1.0*static_cast<double>(selected_depth) / tau);
-                    }
-                }
-                continue;
-            }
-
-            break;
-        }
-
-        active_hi_depth = selected_depth;
-        hi_vector_index = chosen_type_i;
-        State expanding_state = node->get_state();
-        int rollout_limit = open_states[node->get_state()].depth;
-        OperatorProxy op = task_proxy.get_operators()[node->get_info().creating_operator];
-        int succ_g = node->get_g() + get_adjusted_cost(op);
-        EvaluationContext succ_eval_context(
-            expanding_state, succ_g, false, &statistics);
-        int h = succ_eval_context.get_evaluator_value_or_infinity(evaluator.get());
-        rollout_result = random_rollout(expanding_state, h, rollout_limit);
-    }
-
-
-    if (rollout_result == GOAL) {
         return SOLVED;
+    } else if (result == DEADEND) {
+        
+        return IN_PROGRESS;
+    } else if (result == HI) {
+
+        return IN_PROGRESS;
     } else {
+
         return IN_PROGRESS;
     }
+
+    // State expanding_state = node->get_state();
+    // int h;
+    // if (node->get_info().creating_operator == OperatorID::no_operator) {
+    //     EvaluationContext succ_eval_context(
+    //         expanding_state, &statistics, false);
+    //     h = succ_eval_context.get_evaluator_value_or_infinity(evaluator.get());
+    // } else {
+    //     OperatorProxy op = task_proxy.get_operators()[node->get_info().creating_operator];
+    //     int succ_g = node->get_g() + get_adjusted_cost(op);
+    //     EvaluationContext succ_eval_context(
+    //         expanding_state, succ_g, false, &statistics);
+    //     h = succ_eval_context.get_evaluator_value_or_infinity(evaluator.get());
+    // }
 }
 
 void NewSearch::reward_progress() {
