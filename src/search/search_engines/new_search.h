@@ -19,17 +19,13 @@ namespace plugins {
 class Feature;
 }
 
-#define TODO 1
-#define GREED_EXPAND 2
-#define RAND_EXPAND 4
-#define DONE 8
-
 namespace new_search {
 class NewSearch : public SearchEngine {
     const bool reopen_closed_nodes;
 
     std::shared_ptr<Evaluator> evaluator;
     std::shared_ptr<utils::RandomNumberGenerator> rng;
+    double epsilon;
     
     // struct KnownState {
     //     int depth;
@@ -59,10 +55,15 @@ protected:
 
     struct RolloutNode {
         StateID state_id;
-        int g;
+        OperatorID op_id;
+        int h;
 
-        RolloutNode(StateID state_id, int g):
-            state_id(state_id), g(g) {}
+        RolloutNode(StateID state_id, OperatorID op_id, int h):
+            state_id(state_id), op_id(op_id), h(h) {}
+        RolloutNode(StateID state_id, OperatorID op_id):
+            state_id(state_id), op_id(op_id), h(std::numeric_limits<int>::max()) {}
+        RolloutNode() :
+            state_id(StateID::no_state), op_id(OperatorID::no_operator), h(std::numeric_limits<int>::max()) {}
     };
     struct RolloutCTX {
         StateID state_id;
@@ -72,6 +73,7 @@ protected:
 
         RolloutCTX(StateID state_id, int r_length, int state_d, int h) :
             state_id(state_id), r_length(r_length), state_d(state_d), h(h) {}
+        RolloutCTX() : state_id(StateID::no_state), r_length(0), state_d(0), h(std::numeric_limits<int>::max()) {}
     };
     struct SparseSearchTree {
         struct TreeNode {
@@ -80,10 +82,8 @@ protected:
             int h;
             std::shared_ptr<utils::RandomNumberGenerator> rng;
 
-            TreeNode(StateID state_id, int num_rollouts, int h, std::shared_ptr<utils::RandomNumberGenerator> rng) :
-                state_id(state_id), num_rollouts(num_rollouts), h(h), rng(rng) {}
             TreeNode(StateID state_id, int h, std::shared_ptr<utils::RandomNumberGenerator> rng) :
-                state_id(state_id), num_rollouts(0), h(h), rng(rng) {}
+                state_id(state_id), num_rollouts(1), h(h), rng(rng) {}
 
             inline int rl_lower_bound() {
                 return floor(std::log(num_rollouts));
@@ -130,9 +130,9 @@ protected:
                 }
             }
 
-            vector<TreeNode> &states = depth_buckets.at(selected_depth);
+            std::vector<TreeNode> &states = depth_buckets.at(selected_depth);
             int chosen_i = rng->random(states.size());
-            TreeNode node = states[chosen_i];
+            TreeNode &node = states[chosen_i];
 
             node.num_rollouts+=1;
             return RolloutCTX(node.state_id, node.rl_length(), selected_depth, node.h);
@@ -165,14 +165,13 @@ protected:
 
     // rollout stuff
     enum RolloutResult { UHR, DEADEND, HI, GOAL }; 
+    void open_states_along_rollout_path(RolloutCTX ctx, std::vector<RolloutNode> &path);
     OperatorID random_next_action(State s);
     // OperatorID get_next_rollout_start(State s);
     bool add_state(const StateID s_id, const OperatorID op_id, const StateID parent_s_id);
-    pair<RolloutResult, StateID> greedy_rollout(const State rollout_state);
-    pair<RolloutResult, StateID> random_rollout();
-
+    RolloutResult greedy_rollout(const State rollout_state, std::vector<RolloutNode> &path_so_far);
+    std::pair<RolloutResult, std::vector<RolloutNode>> random_rollout(RolloutCTX next_rollout);
     RolloutCTX curr_ctx;
-    std::vector<RolloutNode> curr_rollout_path;
 
     // main search step
     virtual SearchStatus step() override;

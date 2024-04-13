@@ -22,6 +22,11 @@ public:
             "tau",
             "temperature",
             "1.0");
+        add_option<double>(
+            "epsilon",
+            "probability for adding UHR terminal rollout state",
+            "0.1",
+            plugins::Bounds("0.0", "1.0"));
         // add_list_option<shared_ptr<Evaluator>>(
         //     "preferred",
         //     "use preferred operators of these evaluators",
