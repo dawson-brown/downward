@@ -196,6 +196,8 @@ public:
     */
     const State &get_initial_state();
 
+    State get_inner_state(const State &predecessor, const OperatorProxy &op);
+
     /*
       Returns the state that results from applying op to predecessor and
       registers it if this was not done before. This is an expensive operation

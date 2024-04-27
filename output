@@ -1,0 +1,218 @@
+INFO     planner time limit: None
+INFO     planner memory limit: None
+
+INFO     Running translator.
+INFO     translator stdin: None
+INFO     translator time limit: None
+INFO     translator memory limit: None
+INFO     translator command line string: /home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/.venv/bin/python3 /home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/builds/release/bin/translate/translate.py benchmarks-asai/parking-sat11-strips/domain.pddl benchmarks-asai/parking-sat11-strips/pfile10-039.pddl --sas-file output.sas
+Parsing...
+Parsing: [0.000s CPU, 0.003s wall-clock]
+Normalizing task... [0.000s CPU, 0.000s wall-clock]
+Instantiating...
+Generating Datalog program... [0.010s CPU, 0.001s wall-clock]
+Normalizing Datalog program...
+Normalizing Datalog program: [0.000s CPU, 0.002s wall-clock]
+Preparing model... [0.000s CPU, 0.002s wall-clock]
+Generated 32 rules.
+Computing model... [0.550s CPU, 0.560s wall-clock]
+42827 relevant atoms
+4396 auxiliary atoms
+47223 final queue length
+138834 total queue pushes
+Completing instantiation... [3.150s CPU, 3.151s wall-clock]
+Instantiating: [3.730s CPU, 3.732s wall-clock]
+Computing fact groups...
+Finding invariants...
+12 initial candidates
+Finding invariants: [0.010s CPU, 0.010s wall-clock]
+Checking invariant weight... [0.000s CPU, 0.001s wall-clock]
+Instantiating groups... [0.010s CPU, 0.006s wall-clock]
+Collecting mutex groups... [0.000s CPU, 0.001s wall-clock]
+Choosing groups...
+66 uncovered facts
+Choosing groups: [0.010s CPU, 0.007s wall-clock]
+Building translation key... [0.000s CPU, 0.002s wall-clock]
+Computing fact groups: [0.040s CPU, 0.034s wall-clock]
+Building STRIPS to SAS dictionary... [0.000s CPU, 0.001s wall-clock]
+Building dictionary for full mutex groups... [0.000s CPU, 0.004s wall-clock]
+Building mutex information...
+Building mutex information: [0.010s CPU, 0.003s wall-clock]
+Translating task...
+Processing axioms...
+Simplifying axioms... [0.000s CPU, 0.000s wall-clock]
+Translator axioms removed by simplifying: 0
+Computing negative axioms... [0.000s CPU, 0.000s wall-clock]
+Processing axioms: [0.100s CPU, 0.100s wall-clock]
+Translating task: [3.910s CPU, 3.937s wall-clock]
+49010 effect conditions simplified
+0 implied preconditions added
+Detecting unreachable propositions...
+0 operators removed
+0 axioms removed
+26 propositions removed
+Detecting unreachable propositions: [1.920s CPU, 1.916s wall-clock]
+Reordering and filtering variables...
+92 of 92 variables necessary.
+40 of 66 mutex groups necessary.
+39546 of 39546 operators necessary.
+0 of 0 axiom rules necessary.
+Reordering and filtering variables: [0.470s CPU, 0.471s wall-clock]
+Translator variables: 92
+Translator derived variables: 0
+Translator facts: 1172
+Translator goal facts: 26
+Translator mutex groups: 40
+Translator total mutex groups size: 1080
+Translator operators: 39546
+Translator axioms: 0
+Translator task size: 322456
+Translator peak memory: 218220 KB
+Writing output... [0.440s CPU, 0.431s wall-clock]
+Done! [10.660s CPU, 10.673s wall-clock]
+translate exit code: 0
+
+INFO     Running search (release).
+INFO     search stdin: output.sas
+INFO     search time limit: None
+INFO     search memory limit: None
+INFO     search command line string: /home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/builds/release/bin/downward --evaluator 'hff=ff(transform=adapt_costs(cost_type=one))' --search 'new_search(hff, random_seed=99344, epsilon=0.01, tau=1.0)' --internal-plan-file sas_plan < output.sas
+[t=0.00235975s, 11124 KB] reading input...
+[t=0.255095s, 26176 KB] done reading input!
+[t=0.279354s, 33372 KB] Simplifying 137202 unary operators... done! [137202 unary operators]
+[t=0.900902s, 46040 KB] time to simplify: 0.647752s
+[t=0.931022s, 46040 KB] Initializing additive heuristic...
+[t=0.931175s, 46040 KB] Initializing FF heuristic...
+[t=0.931277s, 46040 KB] Building successor generator...done!
+[t=0.958331s, 46040 KB] peak memory difference for successor generator creation: 0 KB
+[t=0.958372s, 46040 KB] time for successor generation creation: 0.026894s
+[t=0.958961s, 46040 KB] Variables: 92
+[t=0.959023s, 46040 KB] FactPairs: 1172
+[t=0.959053s, 46040 KB] Bytes per state: 28
+[t=0.959114s, 46040 KB] Conducting new search without reopening closed nodes, (real) bound = 2147483647
+[t=0.964373s, 46040 KB] New best heuristic value for ff(transform=adapt_costs(cost_type=one)): 49
+[t=0.964509s, 46040 KB] g=0, 1 evaluated, 0 expanded
+[t=0.96456s, 46040 KB] Initial heuristic value for ff(transform=adapt_costs(cost_type=one)): 49
+[t=0.964593s, 46040 KB] Start Timestep: 1713717372991 millisecond(s).
+===============> Good Roll H: 49 | h: 47
+===============> Good Roll H: 47 | h: 41
+===============> Good Roll H: 41 | h: 40
+===============> Fail Roll H: 40 | h: 45
+===============> Good Roll H: 45 | h: 39
+===============> Good Roll H: 45 | h: 39
+===============> Good Roll H: 45 | h: 40
+===============> Fail Roll H: 39 | h: 46
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 39
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 39
+===============> Good Roll H: 39 | h: 37
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 40 | h: 39
+===============> Fail Roll H: 40 | h: 46
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 42
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 40
+===============> Fail Roll H: 40 | h: 42
+===============> Good Roll H: 46 | h: 40
+===============> Fail Roll H: 40 | h: 45
+===============> Good Roll H: 45 | h: 34
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 45 | h: 35
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 45 | h: 40
+===============> Good Roll H: 45 | h: 40
+===============> Fail Roll H: 40 | h: 40
+===============> Good Roll H: 45 | h: 34
+===============> Fail Roll H: 34 | h: 39
+===============> Good Roll H: 39 | h: 32
+===============> Good Roll H: 39 | h: 31
+===============> Good Roll H: 45 | h: 36
+===============> Good Roll H: 39 | h: 21
+===============> Good Roll H: 45 | h: 35
+===============> Good Roll H: 45 | h: 40
+===============> Good Roll H: 39 | h: 32
+===============> Good Roll H: 21 | h: 19
+===============> Fail Roll H: 35 | h: 43
+===============> Fail Roll H: 32 | h: 37
+===============> Good Roll H: 43 | h: 35
+===============> Good Roll H: 43 | h: 36
+===============> Good Roll H: 43 | h: 37
+===============> Good Roll H: 43 | h: 37
+===============> Good Roll H: 37 | h: 30
+===============> Good Roll H: 40 | h: 39
+===============> Fail Roll H: 35 | h: 43
+===============> Good Roll H: 43 | h: 37
+===============> Good Roll H: 43 | h: 36
+===============> Good Roll H: 43 | h: 37
+===============> Good Roll H: 43 | h: 37
+===============> Good Roll H: 37 | h: 36
+===============> Good Roll H: 43 | h: 37
+===============> Good Roll H: 43 | h: 39
+===============> Fail Roll H: 36 | h: 45
+===============> Good Roll H: 43 | h: 36
+===============> Good Roll H: 45 | h: 38
+===============> Good Roll H: 45 | h: 36
+===============> Good Roll H: 43 | h: 39
+===============> Good Roll H: 43 | h: 35
+===============> Good Roll H: 38 | h: 35
+===============> Good Roll H: 43 | h: 35
+===============> Good Roll H: 45 | h: 37
+===============> Fail Roll H: 43 | h: 43
+===============> Good Roll H: 43 | h: 39
+===============> Good Roll H: 43 | h: 36
+===============> Good Roll H: 45 | h: 34
+===============> Good Roll H: 43 | h: 36
+===============> Fail Roll H: 37 | h: 38
+===============> Good Roll H: 43 | h: 29
+===============> Good Roll H: 43 | h: 31
+===============> Fail Roll H: 43 | h: 43
+===============> Fail Roll H: 39 | h: 45
+===============> Good Roll H: 43 | h: 34
+===============> Good Roll H: 43 | h: 37
+===============> Good Roll H: 43 | h: 25
+===============> Good Roll H: 43 | h: 34
+===============> Good Roll H: 45 | h: 42
+===============> Good Roll H: 36 | h: 34
+===============> Good Roll H: 34 | h: 33
+===============> Fail Roll H: 32 | h: 37
+===============> Fail Roll H: 34 | h: 37
+===============> Good Roll H: 43 | h: 40
+===============> Good Roll H: 45 | h: 41
+===============> Good Roll H: 37 | h: 34
+===============> Good Roll H: 43 | h: 36
+===============> Good Roll H: 45 | h: 24
+===============> Good Roll H: 43 | h: 33
+===============> Fail Roll H: 39 | h: 46
+===============> Good Roll H: 45 | h: 43
+===============> Good Roll H: 46 | h: 41
+===============> Good Roll H: 46 | h: 42
+===============> Good Roll H: 46 | h: 42
+===============> Good Roll H: 38 | h: 26
+===============> Good Roll H: 43 | h: 38
+===============> Good Roll H: 37 | h: 32
+===============> Good Roll H: 46 | h: 40
+===============> Good Roll H: 46 | h: 37
+===============> Good Roll H: 43 | h: 33
+===============> Good Roll H: 46 | h: 35
+===============> Good Roll H: 33 | h: 30
+===============> Good Roll H: 42 | h: 38
+===============> Fail Roll H: 37 | h: 45
+===============> Fail Roll H: 24 | h: 39
+===============> Good Roll H: 46 | h: 42
+===============> Good Roll H: 45 | h: 40
+===============> Good Roll H: 45 | h: 39
+===============> Fail Roll H: 40 | h: 44
+===============> Fail Roll H: 31 | h: 38
+===============> Good Roll H: 44 | h: 42
+===============> Good Roll H: 44 | h: 17
+===============> Good Roll H: 39 | h: 36
+Peak memory: 46040 KB
+caught signal 2 -- exiting

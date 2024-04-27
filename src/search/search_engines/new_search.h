@@ -102,16 +102,18 @@ protected:
 
         double current_sum;
         double tau;
+        int last_chosen_depth = -1;
+        int last_chosen_breadth = -1;
+        int last_chosen_state = -1;
         std::shared_ptr<utils::RandomNumberGenerator> rng;
-        std::map<int, std::vector<TreeNode>, std::greater<int>> depth_buckets;
+        std::map<double, std::vector<TreeNode>, std::greater<double>> depth_buckets;
 
         SparseSearchTree(double current_sum, double tau, std::shared_ptr<utils::RandomNumberGenerator> rng) 
             : current_sum(current_sum), tau(tau), rng(rng) {};
 
+
         RolloutCTX select_next_state() { 
             int selected_depth;
-            int chosen_type_i;
-
             selected_depth = depth_buckets.begin()->first;
             if (depth_buckets.size() > 1) {
                 double r = rng->random();
@@ -120,7 +122,7 @@ protected:
                 double p_sum = 0.0;
                 for (auto it : depth_buckets) {
                     double p = 1.0 / total_sum;
-                    p *= std::exp(-1.0*static_cast<double>(it.first) / tau); //remove -1.0 *
+                    p *= std::exp(static_cast<double>(it.first) / tau); //remove -1.0 *
                     p *= static_cast<double>(it.second.size());
                     p_sum += p;
                     if (r <= p_sum) {
@@ -133,17 +135,48 @@ protected:
             std::vector<TreeNode> &states = depth_buckets.at(selected_depth);
             int chosen_i = rng->random(states.size());
             TreeNode &node = states[chosen_i];
-
             node.num_rollouts+=1;
+
+            last_chosen_depth = selected_depth;
+            last_chosen_breadth = chosen_i;
             return RolloutCTX(node.state_id, node.rl_length(), selected_depth, node.h);
         };
         void add_initial_state(StateID state_id, int h) {
-            add_state(state_id, 0, h);
+            current_sum += std::exp(0 / tau);
+            depth_buckets[0].push_back(
+                {TreeNode(state_id, h, rng)}
+            );
+            last_chosen_depth = 0;
+            last_chosen_breadth = 0;
+            last_chosen_state = 0;
         }
-        void add_state(StateID state_id, int depth, int h) {
-            current_sum += std::exp(static_cast<double>(depth) / tau);
-            depth_buckets[depth].push_back(
-                TreeNode(state_id, h, rng)
+        void add_state(StateID state_id, int depth, int h, int r_len) {
+
+            if (depth > last_chosen_depth) {
+                TreeNode &parent = depth_buckets[last_chosen_depth][last_chosen_breadth];
+                parent.num_rollouts = r_len;
+                current_sum += std::exp(static_cast<double>(depth) / tau);
+                depth_buckets[depth].push_back(
+                    TreeNode(state_id, h, rng)
+                );
+            } else {
+                depth_buckets[last_chosen_depth].push_back(
+                    TreeNode(state_id, h, rng)
+                );
+            }
+        }
+        void penalize_last_for_deadend(int r_len) {
+            current_sum -= std::exp(static_cast<double>( last_chosen_depth ) / tau);
+
+            double new_depth = last_chosen_depth - 1/r_len;
+            TreeNode node = depth_buckets[last_chosen_depth][last_chosen_breadth];
+            utils::swap_and_pop_from_vector(depth_buckets[last_chosen_depth], last_chosen_breadth);
+            if (depth_buckets[last_chosen_depth].empty()) {
+                depth_buckets.erase(last_chosen_depth);
+            }
+            current_sum += std::exp(static_cast<double>(new_depth) / tau);
+            depth_buckets[new_depth].push_back(
+                node
             );
         }
     };
@@ -165,11 +198,11 @@ protected:
 
     // rollout stuff
     enum RolloutResult { UHR, DEADEND, HI, GOAL }; 
-    void open_states_along_rollout_path(RolloutCTX ctx, std::vector<RolloutNode> &path);
+    SearchStatus open_states_along_rollout_path(RolloutCTX ctx, std::pair<RolloutResult, std::vector<RolloutNode>> &path);
     OperatorID random_next_action(State s);
     // OperatorID get_next_rollout_start(State s);
     bool add_state(const StateID s_id, const OperatorID op_id, const StateID parent_s_id);
-    RolloutResult greedy_rollout(const State rollout_state, std::vector<RolloutNode> &path_so_far);
+    RolloutResult greedy_rollout(const State rollout_state, std::vector<RolloutNode> &path_so_far, StateRegistry &rollout_registry);
     std::pair<RolloutResult, std::vector<RolloutNode>> random_rollout(RolloutCTX next_rollout);
     RolloutCTX curr_ctx;
 
