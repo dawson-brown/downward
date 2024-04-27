@@ -1,0 +1,24 @@
+2024-02-13 07:23:16,250 INFO     Running step build: build()
+2024-02-13 07:23:16,250 INFO     Revision is already cached: "/home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/revision-cache/1bedf035e0066ee74d20971dbe2855ebed2c69af_e5e41175"
+2024-02-13 07:23:16,250 INFO     Experiment path: "/home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/thesis-explore"
+2024-02-13 07:23:17,005 INFO     Building 1 runs
+2024-02-13 07:23:17,007 INFO     Finished building runs
+2024-02-13 07:23:17,007 INFO     Running step start: start_runs()
+2024-02-13 07:23:17,007 INFO     Executing /home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/.venv/bin/python3 run {'cwd': '/home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/thesis-explore'}
+2024-02-13 07:23:17,090 INFO     Starting run 1 (TASK_ID 1) in runs-00001-00100/00001
+2024-02-13 07:23:17,720 INFO     Joining pool processes
+2024-02-13 07:23:17,731 INFO     Running step fetch: fetcher('/home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/thesis-explore', '/home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/thesis-explore-eval', filter=None, merge=None)
+2024-02-13 07:23:17,732 INFO     Fetching properties from /home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/thesis-explore to /home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/thesis-explore-eval
+2024-02-13 07:23:17,733 INFO     Scanning properties from 1 run directories
+2024-02-13 07:23:17,735 INFO     Wrote properties file (contains 0 runs with unexplained errors).
+2024-02-13 07:23:17,736 INFO     Running step thesis-explore.html: absolutereport('/home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/thesis-explore-eval', '/home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/thesis-explore-eval/thesis-explore.html')
+2024-02-13 07:23:17,736 INFO     Reading properties file
+2024-02-13 07:23:17,736 INFO     Reading properties file finished
+2024-02-13 07:23:17,736 INFO     Report contains 0 runs with unexplained errors.
+2024-02-13 07:23:17,741 INFO     Creating table(s) for cost
+2024-02-13 07:23:17,742 INFO     Creating table(s) for coverage
+2024-02-13 07:23:17,742 INFO     Creating table(s) for error
+2024-02-13 07:23:17,743 INFO     Creating table(s) for expansions
+2024-02-13 07:23:17,743 INFO     Creating table(s) for memory
+2024-02-13 07:23:17,743 INFO     Creating table(s) for total_time
+2024-02-13 07:23:17,777 INFO     Wrote file:///home/dawson/Documents/Masters/Thesis/search/code/downward-projects/downward/experiments/src/thesis/data/thesis-explore-eval/thesis-explore.html

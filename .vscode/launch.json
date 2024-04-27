@@ -1,0 +1,36 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+
+    //"eager(hi_partition(hff, inter_biased_depth(ignore_size=true), intra_biased(hff, ignore_size=true)), cost_type=one)"
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/builds/debug/bin/downward",
+            "args": ["--evaluator", "hff=ff(transform=adapt_costs(cost_type=one))", "--search", "new_search(hff, random_seed=187650, epsilon=0.01, tau=2.0)", "<", "${workspaceFolder}/output.sas"],
+            // "args": ["--evaluator", "hff=ff(transform=adapt_costs(cost_type=one))", "--search", "eager(hib_partition(hff, inter_uniform(random_seed=154), intra_uniform()), cost_type=one)", "<", "${workspaceFolder}/output.sas"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+
+    ]
+}
