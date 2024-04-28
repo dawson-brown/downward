@@ -67,8 +67,11 @@ void SparseMCTS::print_statistics() const {
 }
 
 shared_ptr<SparseMCTS::Node> SparseMCTS::select(shared_ptr<SparseMCTS::Node> node)
-{
+{   
     shared_ptr<Node> best = node;
+    if (cached_select != nullptr) {
+        best = cached_select;
+    }
     float bestScore = node->get_avg_score() + c * (float)sqrt( std::log(node->parent->num_visits) / node->num_visits);
 
     auto& children = node->children;
@@ -85,14 +88,56 @@ shared_ptr<SparseMCTS::Node> SparseMCTS::select(shared_ptr<SparseMCTS::Node> nod
     return best; // will return *node* if none of children are better
 }
 
+SparseMCTS::Outcome SparseMCTS::simulate(SparseMCTS::Node &node) {
+    StateID start_id = node.id;
+    Outcome oc;
+
+    StateRegistry rollout_registry(task_proxy);
+    // do rollout like other branch...
+
+
+}
+
+
+void SparseMCTS::back_propogate(Result result, SparseMCTS::Node &node) {
+
+    float score = 1 ? result == HI : 0;
+    node.update(score);
+
+    std::shared_ptr<Node> current = node.parent;
+    while (current) {
+        current->update(score);
+        current = current->parent;
+    }
+}
+
 SearchStatus SparseMCTS::step()
 {
-
     shared_ptr<Node> selected = root;
     while (selected != select(selected)) {}
-    simulate(selected);
-    back_propogate(selected);
+    Outcome oc = simulate(*selected);
 
+    if (oc.result == GOAL) {
+
+        return SOLVED;
+    }
+
+    if (oc.result != DEADEND) {
+         if (oc.result == HI) {
+            cached_select = selected;
+                // TODO: add oc.terminal to tree
+                // -- this involves opening path in state registry
+                // and including the Node into the child list and all that.
+         } else {
+            cached_select = nullptr;
+            if (rng->random() >= epsilon) {
+                // TODO: add oc.terminal to tree
+                // -- this involves opening path in state registry
+                // and including the Node into the child list and all that.
+            }
+        }
+    }
+    back_propogate(oc.result, *selected);
     return IN_PROGRESS;
 }
 

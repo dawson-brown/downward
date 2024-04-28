@@ -24,7 +24,6 @@ class SparseMCTS : public SearchAlgorithm {
     double epsilon;
 
 protected:
-
     struct Node {
         StateID id;
         OperatorID op_id;
@@ -54,7 +53,20 @@ protected:
     bool is_dead_end(EvaluationContext &eval_context) const;
     virtual void initialize() override;
 
+    shared_ptr<Node> cached_select = nullptr;
+    enum Result { DEADEND = -1, UHR, HI, GOAL };
+    struct Outcome {
+        Result result;
+        shared_ptr<Node> terminal;
+
+        Outcome(Result result, shared_ptr<Node> node) :
+            result(result), terminal(node) {}
+        Outcome() :
+            result(UHR), terminal(nullptr) {}
+    };
     shared_ptr<SparseMCTS::Node> select(shared_ptr<SparseMCTS::Node> node);
+    Outcome simulate(SparseMCTS::Node &node);
+    void back_propogate(Result result, SparseMCTS::Node &node);
     virtual SearchStatus step() override;
 
 public:
