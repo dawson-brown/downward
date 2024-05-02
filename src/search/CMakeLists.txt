@@ -429,6 +429,26 @@ create_fast_downward_library(
 )
 
 create_fast_downward_library(
+    NAME sparse_mcts_search
+    HELP "Sparse MCTS search"
+    SOURCES
+        search_algorithms/sparse_mcts
+    DEPENDS
+        successor_generator
+    DEPENDENCY_ONLY
+)
+
+create_fast_downward_library(
+    NAME plugin_sparse_mcts_search
+    HELP "Sparse MCTS search Instance"
+    SOURCES
+        search_algorithms/plugin_sparse_mcts
+    DEPENDS
+        sparse_mcts_search
+        search_common
+)
+
+create_fast_downward_library(
     NAME eager_search
     HELP "Eager search"
     SOURCES
