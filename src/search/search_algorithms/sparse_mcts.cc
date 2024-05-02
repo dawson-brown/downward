@@ -26,8 +26,9 @@ SparseMCTS::SparseMCTS(const plugins::Options &opts)
     : SearchAlgorithm(opts),
       heuristic(opts.get<shared_ptr<Evaluator>>("eval", nullptr)),
       rng(utils::parse_rng_from_options(opts)),
-      c(opts.get<double>("c")),
-      epsilon(opts.get<double>("epsilon"))  {}
+      c(opts.get<float>("c")),
+      epsilon(opts.get<float>("epsilon")) {}
+
 
 
 bool SparseMCTS::is_dead_end(

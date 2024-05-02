@@ -20,8 +20,8 @@ class SparseMCTS : public SearchAlgorithm {
     std::shared_ptr<Evaluator> heuristic;
     std::shared_ptr<utils::RandomNumberGenerator> rng;
 
-    double c;
-    double epsilon;
+    float c;
+    float epsilon;
 
 protected:
 
@@ -48,12 +48,12 @@ protected:
             children.push_back(child); 
         }
 
-        double get_avg_score() {
+        float get_avg_score() {
             return score / num_visits;
         }
 
         void set_rollout_length() {
-            int floor_log = std::floor(logb(rollout_step));
+            int floor_log = static_cast <int> (std::floor(logb(rollout_step)));
             int range = rollout_step - floor_log + 1;
             int num = std::rand() % range + floor_log;
             rl_length = std::max(num, 0);

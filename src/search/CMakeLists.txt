@@ -448,6 +448,7 @@ create_fast_downward_library(
         search_common
 )
 
+
 create_fast_downward_library(
     NAME eager_search
     HELP "Eager search"
