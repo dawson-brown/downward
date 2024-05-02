@@ -242,9 +242,4 @@ void SparseMCTS::open_path_to_new_node(shared_ptr<Node> selected, std::vector<Op
 void SparseMCTS::dump_search_space() const {
     search_space.dump(task_proxy);
 }
-
-
-void add_options_to_feature(plugins::Feature &feature) {
-    SearchAlgorithm::add_options_to_feature(feature);
-}
 }

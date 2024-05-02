@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace plugin_sparse_mcts {
+namespace plugin_sparse_mcts_search {
 class SparseMCTSFeature : public plugins::TypedFeature<SearchAlgorithm, sparse_mcts_search::SparseMCTS> {
 public:
     SparseMCTSFeature() : TypedFeature("sparse_mcts") {
@@ -26,7 +26,7 @@ public:
         //     "preferred",
         //     "use preferred operators of these evaluators",
         //     "[]");
-        plugin_sparse_mcts::add_options_to_feature(*this);
+        SearchAlgorithm::add_options_to_feature(*this);
         utils::add_rng_options(*this); 
 
     }
