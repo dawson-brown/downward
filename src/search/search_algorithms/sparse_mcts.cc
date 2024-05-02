@@ -26,8 +26,8 @@ SparseMCTS::SparseMCTS(const plugins::Options &opts)
     : SearchAlgorithm(opts),
       heuristic(opts.get<shared_ptr<Evaluator>>("eval", nullptr)),
       rng(utils::parse_rng_from_options(opts)),
-      c(opts.get<float>("c")),
-      epsilon(opts.get<float>("epsilon")) {}
+      c((float)opts.get<double>("c")),
+      epsilon((float)opts.get<double>("epsilon")) {}
 
 
 
@@ -86,7 +86,13 @@ shared_ptr<SparseMCTS::Node> SparseMCTS::select(shared_ptr<SparseMCTS::Node> nod
     if (cached_select != nullptr) {
         best = cached_select;
     }
-    float bestScore = node->get_avg_score() + c * (float)sqrt( std::log(node->parent->num_visits) / node->num_visits);
+
+    float bestScore;
+    if (node->parent) {
+        bestScore = node->get_avg_score() + c * (float)sqrt( std::log(node->parent->num_visits) / node->num_visits);
+    } else {
+        bestScore = node->get_avg_score() + c;
+    }
 
     auto& children = node->children;
     // Use the UCT formula for selection

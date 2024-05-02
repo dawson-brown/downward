@@ -21,7 +21,7 @@ public:
             "epsilon",
             "probability of adding the terminal state of a failed rollout",
             "0.1",
-        plugins::Bounds("0.0", "1.0"));
+            plugins::Bounds("0.0", "1.0"));
         // add_list_option<shared_ptr<Evaluator>>(
         //     "preferred",
         //     "use preferred operators of these evaluators",

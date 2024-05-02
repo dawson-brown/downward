@@ -11,7 +11,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/builds/debug/bin/downward",
-            "args": ["--evaluator", "hff=ff(transform=adapt_costs(cost_type=one))", "--search", "new_search(hff, random_seed=187650, epsilon=0.01, tau=2.0)", "<", "${workspaceFolder}/output.sas"],
+            "args": ["--evaluator", "hff=ff(transform=adapt_costs(cost_type=one))", "--search", "sparse_mcts(hff, random_seed=187650)", "<", "${workspaceFolder}/output.sas"],
             // "args": ["--evaluator", "hff=ff(transform=adapt_costs(cost_type=one))", "--search", "eager(hib_partition(hff, inter_uniform(random_seed=154), intra_uniform()), cost_type=one)", "<", "${workspaceFolder}/output.sas"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
