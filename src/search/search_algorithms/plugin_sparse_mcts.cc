@@ -26,8 +26,8 @@ public:
         //     "preferred",
         //     "use preferred operators of these evaluators",
         //     "[]");
+        plugin_sparse_mcts::add_options_to_feature(*this);
         utils::add_rng_options(*this); 
-        sparse_mcts_search::add_options_to_feature(*this);
 
     }
 };
