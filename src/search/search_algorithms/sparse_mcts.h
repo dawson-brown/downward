@@ -52,6 +52,15 @@ protected:
             return score / num_visits;
         }
 
+        float utc(float c, int p_n) {
+            if (num_visits == 0) {
+                return std::numeric_limits<float>::max();
+            }
+            double l = std::log(p_n);
+            float tmp = (float)sqrt( l / num_visits);
+            return get_avg_score() + c * tmp;
+        }
+
         void set_rollout_length() {
             int floor_log = static_cast <int> (std::floor(logb(rollout_step)));
             int range = rollout_step - floor_log + 1;

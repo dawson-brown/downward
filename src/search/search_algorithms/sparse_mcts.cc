@@ -88,16 +88,16 @@ shared_ptr<SparseMCTS::Node> SparseMCTS::select(shared_ptr<SparseMCTS::Node> nod
     }
 
     float bestScore;
-    if (node->parent) {
-        bestScore = node->get_avg_score() + c * (float)sqrt( std::log(node->parent->num_visits) / node->num_visits);
+    if (best->parent) {
+        bestScore = best->utc(c, best->parent->num_visits); 
     } else {
-        bestScore = node->get_avg_score() + c;
+        bestScore = best->utc(c, best->num_visits);
     }
 
-    auto& children = node->children;
+    auto& children = best->children;
     // Use the UCT formula for selection
     for (auto& n : children) {
-        float score = n->get_avg_score() + c * (float)sqrt( std::log(node->num_visits) / n->num_visits);
+        float score = n->utc(c, root->num_visits);
 
         if (score > bestScore) {
             bestScore = score;
@@ -124,7 +124,7 @@ SparseMCTS::Outcome SparseMCTS::simulate(SparseMCTS::Node &node, vector<Operator
         OperatorID op_id = *rng->choose(applicable_ops);
         OperatorProxy op = task_proxy.get_operators()[op_id];
         curr_state = rollout_registry.get_successor_state(parent_s, op);
-        // curr_state = parent_s.get_unregistered_successor(op);
+        statistics.inc_generated(); // generated counts number of rollout states
         
         applicable_ops.clear();
         successor_generator.generate_applicable_ops(curr_state, applicable_ops);
@@ -148,6 +148,7 @@ SparseMCTS::Outcome SparseMCTS::simulate(SparseMCTS::Node &node, vector<Operator
 
     EvaluationContext succ_eval_context(
             curr_state, &statistics, false);
+    statistics.inc_evaluated_states();
     int eval = succ_eval_context.get_evaluator_value_or_infinity(heuristic.get());
     if (eval == EvaluationResult::INFTY) {
         return Outcome(DEADEND);
@@ -186,7 +187,13 @@ void SparseMCTS::back_propogate(Result result, SparseMCTS::Node &node) {
 SearchStatus SparseMCTS::step()
 {
     shared_ptr<Node> selected = root;
-    while (selected != select(selected)) {}
+    while (true) {
+        shared_ptr<Node> tmp = select(selected);
+
+        if (tmp == selected)
+            break;
+        selected = tmp;
+    }
 
     vector<OperatorID> rollout_path;
     Outcome oc = simulate(*selected, rollout_path);
@@ -198,13 +205,16 @@ SearchStatus SparseMCTS::step()
 
     if (oc.result != DEADEND) {
          if (oc.result == HI) {
+            statistics.inc_expanded();
             cached_select = selected;
             open_path_to_new_node(selected, rollout_path, oc);
+            statistics.print_checkpoint_line(rollout_path.size());
             // add_mcts_node(*selected, new_node);
          } else {
             cached_select = nullptr;
             if (rng->random() >= epsilon) {
                 open_path_to_new_node(selected, rollout_path, oc);
+                statistics.print_checkpoint_line(rollout_path.size());
                 // add_mcts_node(*selected, new_node);
             }
         }
