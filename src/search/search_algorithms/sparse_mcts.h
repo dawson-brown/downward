@@ -22,6 +22,7 @@ class SparseMCTS : public SearchAlgorithm {
 
     float c;
     float epsilon;
+    float theta;
 
 protected:
 
@@ -91,7 +92,7 @@ protected:
     void back_propogate(Result result, SparseMCTS::Node &node);
     virtual SearchStatus step() override;
 
-    void open_path_to_new_node(std::shared_ptr<Node> selected, std::vector<OperatorID> path, Outcome oc);
+    std::shared_ptr<SparseMCTS::Node> open_path_to_new_node(std::shared_ptr<SparseMCTS::Node> selected, std::vector<OperatorID> path, Outcome oc);
     // void add_mcts_node(Node& selected, shared_ptr<Node> new_node);
 
 public:

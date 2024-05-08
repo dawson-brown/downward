@@ -27,7 +27,8 @@ SparseMCTS::SparseMCTS(const plugins::Options &opts)
       heuristic(opts.get<shared_ptr<Evaluator>>("eval", nullptr)),
       rng(utils::parse_rng_from_options(opts)),
       c((float)opts.get<double>("c")),
-      epsilon((float)opts.get<double>("epsilon")) {}
+      epsilon((float)opts.get<double>("epsilon")),
+      theta((float)opts.get<double>("theta")) {}
 
 
 
@@ -87,13 +88,11 @@ shared_ptr<SparseMCTS::Node> SparseMCTS::select(shared_ptr<SparseMCTS::Node> nod
         best = cached_select;
     }
 
-    float bestScore;
-    if (best->parent) {
-        bestScore = best->utc(c, best->parent->num_visits); 
-    } else {
-        bestScore = best->utc(c, best->num_visits);
+    if (rng->random() < theta) {
+        return best;
     }
-
+    
+    float bestScore = numeric_limits<float>::min();
     auto& children = best->children;
     // Use the UCT formula for selection
     for (auto& n : children) {
@@ -199,8 +198,10 @@ SearchStatus SparseMCTS::step()
     Outcome oc = simulate(*selected, rollout_path);
 
     if (oc.result == GOAL) {
-
-        return SOLVED;
+        shared_ptr<Node> goal_node = open_path_to_new_node(selected, rollout_path, oc);
+        State goal = state_registry.lookup_state(goal_node->id);
+        if (check_goal_and_set_plan(goal))
+            return SOLVED;
     }
 
     if (oc.result != DEADEND) {
@@ -212,7 +213,7 @@ SearchStatus SparseMCTS::step()
             // add_mcts_node(*selected, new_node);
          } else {
             cached_select = nullptr;
-            if (rng->random() >= epsilon) {
+            if (rng->random() < epsilon) {
                 open_path_to_new_node(selected, rollout_path, oc);
                 statistics.print_checkpoint_line(rollout_path.size());
                 // add_mcts_node(*selected, new_node);
@@ -223,7 +224,7 @@ SearchStatus SparseMCTS::step()
     return IN_PROGRESS;
 }
 
-void SparseMCTS::open_path_to_new_node(shared_ptr<Node> selected, std::vector<OperatorID> path, Outcome oc) {
+shared_ptr<SparseMCTS::Node> SparseMCTS::open_path_to_new_node(shared_ptr<SparseMCTS::Node> selected, std::vector<OperatorID> path, Outcome oc) {
     State state = state_registry.lookup_state(selected->id);
     OperatorID last_op(OperatorID::no_operator);
     for (OperatorID op_id : path) {
@@ -250,6 +251,7 @@ void SparseMCTS::open_path_to_new_node(shared_ptr<Node> selected, std::vector<Op
         oc.h
     ));
     selected->add_child(node);
+    return node;
 }
 
 // void SparseMCTS::add_mcts_node(Node& selected, shared_ptr<Node> new_node) {
