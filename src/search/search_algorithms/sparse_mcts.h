@@ -26,6 +26,7 @@ class SparseMCTS : public SearchAlgorithm {
 
 protected:
 
+    utils::HashSet<StateID> seen_states; /// use this to not include dupes in tree
     struct Node {
         StateID id;
         OperatorID op_id;
@@ -88,11 +89,16 @@ protected:
             result(UHR), h(std::numeric_limits<int>::max()) {}
     };
     std::shared_ptr<SparseMCTS::Node> select(std::shared_ptr<SparseMCTS::Node> node);
+    Outcome expand(SparseMCTS::Node &node, std::vector<OperatorID> &path);
     Outcome simulate(SparseMCTS::Node &node, std::vector<OperatorID> &path);
     void back_propogate(Result result, SparseMCTS::Node &node);
     virtual SearchStatus step() override;
 
-    std::shared_ptr<SparseMCTS::Node> open_path_to_new_node(std::shared_ptr<SparseMCTS::Node> selected, std::vector<OperatorID> path, Outcome oc);
+    // std::shared_ptr<SparseMCTS::Node> bump_node(std::shared_ptr<SparseMCTS::Node> selected, std::vector<OperatorID> path, Outcome oc);
+    std::shared_ptr<SparseMCTS::Node> open_path_to_new_node(
+                                        std::shared_ptr<SparseMCTS::Node> selected, 
+                                        std::vector<OperatorID> path, 
+                                        Outcome oc, bool bump);
     // void add_mcts_node(Node& selected, shared_ptr<Node> new_node);
 
 public:
