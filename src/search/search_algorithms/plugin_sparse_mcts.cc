@@ -25,7 +25,7 @@ public:
         add_option<double>(
             "theta",
             "probability of rolling out from an internal node",
-            "0.1",
+            "0.5",
             plugins::Bounds("0.0", "1.0"));
         // add_list_option<shared_ptr<Evaluator>>(
         //     "preferred",
