@@ -54,9 +54,9 @@ protected:
         }
 
         float utc(float c, int p_n) {
-            // if (num_visits == 0) {
-            //     return std::numeric_limits<float>::max();
-            // }
+            if (num_visits == 0) {
+                return std::numeric_limits<float>::max();
+            }
             double l = std::log(p_n);
             float tmp = (float)sqrt( l / num_visits);
             return get_avg_score() + c * tmp;
@@ -71,7 +71,7 @@ protected:
     };
     std::shared_ptr<Node> root;
 
-    utils::HashMap<StateID, std::shared_ptr<Node>> seen_states;
+    PerStateInformation<std::shared_ptr<Node>> seen_states;
     bool is_dead_end(EvaluationContext &eval_context) const;
     virtual void initialize() override;
 

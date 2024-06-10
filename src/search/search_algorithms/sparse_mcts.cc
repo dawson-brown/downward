@@ -69,7 +69,8 @@ void SparseMCTS::initialize() {
             nullptr,
             eval_context.get_evaluator_value(heuristic.get())
         ));
-        seen_states.emplace(initial_state.get_id(), root);
+        seen_states[initial_state] = root;
+        cached_select = root;
 
     }
 
@@ -140,6 +141,7 @@ SparseMCTS::Outcome SparseMCTS::expand(SparseMCTS::Node &node, vector<OperatorID
         }
     }
 
+    // node.rollout_step = applicable_ops.size()-1; // maybe
     if (h_to_beat == node.h) {
         return Outcome(UHR, h_to_beat);
     } else {
@@ -164,7 +166,6 @@ SparseMCTS::Outcome SparseMCTS::simulate(SparseMCTS::Node &node, vector<Operator
         OperatorID op_id = *rng->choose(applicable_ops);
         OperatorProxy op = task_proxy.get_operators()[op_id];
         curr_state = rollout_registry.get_successor_state(parent_s, op);
-        statistics.inc_generated(); // generated counts number of rollout states
         
         applicable_ops.clear();
         successor_generator.generate_applicable_ops(curr_state, applicable_ops);
@@ -245,6 +246,7 @@ SearchStatus SparseMCTS::step()
     Outcome oc;
     if (greedy) {
         oc = expand(*selected, rollout_path);
+        statistics.inc_expanded();
     } else {
         oc = simulate(*selected, rollout_path);
     }
@@ -258,17 +260,18 @@ SearchStatus SparseMCTS::step()
 
     if (oc.result != DEADEND) {
          if (oc.result == HI) {
-            statistics.inc_expanded();
             cached_select = open_path_to_new_node(selected, rollout_path, oc, true ? greedy : false);
+            statistics.inc_generated();
             statistics.print_checkpoint_line(rollout_path.size());
-            back_propogate(oc.result, *cached_select);
+            back_propogate(oc.result, *selected);
          } else {
             cached_select = nullptr;
             if (rng->random() < epsilon && !greedy) {
-                shared_ptr<Node> end_node = open_path_to_new_node(selected, rollout_path, oc, false);
+                cached_select = open_path_to_new_node(selected, rollout_path, oc, false);
+                statistics.inc_generated();
                 statistics.print_checkpoint_line(rollout_path.size());
-                back_propogate(oc.result, *end_node);
             }
+            back_propogate(oc.result, *selected);
         }
     }
     return IN_PROGRESS;
@@ -283,6 +286,8 @@ shared_ptr<SparseMCTS::Node> SparseMCTS::open_path_to_new_node(
     OperatorID last_op(OperatorID::no_operator);
 
     int i = 0;
+    bool close_behind = false;
+    bool last_was_new = false;
     for (OperatorID op_id : path) {
         OperatorProxy op = task_proxy.get_operators()[op_id];
         State succ_state = state_registry.get_successor_state(state, op);
@@ -290,14 +295,21 @@ shared_ptr<SparseMCTS::Node> SparseMCTS::open_path_to_new_node(
         SearchNode node = search_space.get_node(state);
         SearchNode succ_node = search_space.get_node(succ_state);
 
-        if (i>0) {
+        if (i>0 && close_behind) {
             node.close(); // close behind you so only type states are open
+        } else {
+            close_behind = true;
         }
 
         if (succ_node.is_new()) {
             succ_node.open(node, op, get_adjusted_cost(op));
+            last_was_new = true; 
         } else if (succ_node.get_g() > node.get_g() + get_adjusted_cost(op)) {
             succ_node.update_parent(node, op, get_adjusted_cost(op));
+            if (succ_node.is_open()) {
+                close_behind = false; // don't close states that were already open (those states are or were in the type system)
+            }
+            last_was_new = false;
         }
 
         state = succ_state;
@@ -307,16 +319,12 @@ shared_ptr<SparseMCTS::Node> SparseMCTS::open_path_to_new_node(
     }
 
     if (bump) {
-        State old_state = state_registry.lookup_state(selected->id);
-        SearchNode old_node = search_space.get_node(old_state);
-        old_node.close();
-
         selected->id = state.get_id();
         selected->op_id = last_op;
         selected->h = oc.h;
         return selected;
     } else {
-        if (seen_states.count(state.get_id()) == 0) {
+        if (last_was_new) { // if the last state of the path was new, make a new node and include it in seen_states
             shared_ptr<Node> node(new Node(
                 state.get_id(),
                 last_op,
@@ -324,10 +332,10 @@ shared_ptr<SparseMCTS::Node> SparseMCTS::open_path_to_new_node(
                 oc.h
             ));
             selected->add_child(node);
-            seen_states.emplace(node->id, node);
+            seen_states[state] = node;
             return node;
         } else {
-            return seen_states.at(state.get_id());
+            return seen_states[state];
         }
     }
 }

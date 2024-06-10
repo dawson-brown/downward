@@ -231,6 +231,12 @@ inline void feed(HashState &hash_state, std::uint64_t value) {
     hash_state.feed(static_cast<std::uint32_t>(value));
 }
 
+// inline void feed(HashState &hash_state, StateID value) {
+//     hash_state.feed(static_cast<int>(value));
+//     value >>= 32;
+//     hash_state.feed(value);
+// }
+
 template<typename T>
 void feed(HashState &hash_state, const T *p) {
     // This is wasteful in 32-bit mode, but we plan to discontinue 32-bit compiles anyway.
