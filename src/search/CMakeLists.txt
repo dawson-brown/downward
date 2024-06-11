@@ -450,6 +450,27 @@ create_fast_downward_library(
 
 
 create_fast_downward_library(
+    NAME sparse_lwm_search
+    HELP "Sparse LWM search"
+    SOURCES
+        search_algorithms/sparse_lwm
+    DEPENDS
+        successor_generator
+    DEPENDENCY_ONLY
+)
+
+create_fast_downward_library(
+    NAME plugin_sparse_lwm_search
+    HELP "Sparse LWM search Instance"
+    SOURCES
+        search_algorithms/plugin_sparse_lwm
+    DEPENDS
+        sparse_lwm_search
+        search_common
+)
+
+
+create_fast_downward_library(
     NAME eager_search
     HELP "Eager search"
     SOURCES
