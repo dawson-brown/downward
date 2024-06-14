@@ -22,17 +22,17 @@ class SparseLWM : public SearchAlgorithm {
     std::shared_ptr<utils::RandomNumberGenerator> rng;
 
     double tau;
-    double epsilon;
     double current_sum;
 
 protected:
 
     struct NodeLoc {
         int depth;
-        int i;
+        int bucket_i;
+        int node_i;
 
-        NodeLoc(int depth, int i) : depth(depth), i(i) {};
-        NodeLoc() : depth(-1), i(-1) {};
+        NodeLoc(int depth, int bucket_i, int node_i) : depth(depth), bucket_i(bucket_i), node_i(node_i) {};
+        NodeLoc() : depth(-1), bucket_i(-1), node_i(-1) {};
     };
 
     struct Node {
@@ -52,15 +52,18 @@ protected:
             rl_length = std::rand() % (rollout_step+1) + 1;
         }
     };
-    std::map<int, std::vector<Node>, std::greater<int>> depth_buckets;
-    // utils::HashMap<int, std::pair<int, int>> partition_to_id_pair;
+    std::map<int, std::vector<std::vector<Node>>, std::greater<int>> depth_buckets;
+    Node get_node(NodeLoc loc) {
+        return depth_buckets[loc.depth][loc.bucket_i][loc.node_i];
+    }
+    // utils::HashMap<int, std::vector<Node>> types;
+    // PerStateInformation<Node> seen_states;
 
-    PerStateInformation<Node> seen_states;
     bool is_dead_end(EvaluationContext &eval_context) const;
     virtual void initialize() override;
 
-    NodeLoc cached_select = NodeLoc(-1, -1);
-    enum Result { DEADEND = -1, UHR, HI, GOAL };
+    NodeLoc cached_select = NodeLoc();
+    enum Result { DEADEND = -1, CRATER, PLATEAU, HI, GOAL };
     struct Outcome {
         Result result;
         int h;
@@ -70,16 +73,17 @@ protected:
         Outcome(Result result) :
             result(result), h(std::numeric_limits<int>::max()) {}
         Outcome() :
-            result(UHR), h(std::numeric_limits<int>::max()) {}
+            result(DEADEND), h(std::numeric_limits<int>::max()) {}
     };
 
     NodeLoc select();
-    Outcome expand(SparseLWM::Node &node, std::vector<OperatorID> &path);
-    Outcome simulate(SparseLWM::Node &node, std::vector<OperatorID> &path);
+    Outcome exploit(SparseLWM::Node &node, std::vector<OperatorID> &path);
+    Outcome explore(SparseLWM::Node &node, std::vector<OperatorID> &path);
     virtual SearchStatus step() override;
-    Node open_path_to_new_node(NodeLoc selected, 
+    Node trace_path_to_new_node(NodeLoc selected, 
                                 std::vector<OperatorID> &path, 
-                                Outcome oc, bool bump);
+                                Outcome oc);
+    NodeLoc add_node_to_type_system(Node new_node, NodeLoc parent_loc, Outcome oc);
 
 public:
     explicit SparseLWM(const plugins::Options &opts);
